@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-// import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -61,21 +60,12 @@ function FarcasterAppContent() {
   if (!isFarcasterEnv) {
     return (
       <div className="min-h-screen bg-bg p-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-2xl mx-auto pt-12 space-y-8"
-        >
+        <div className="max-w-2xl mx-auto pt-12 space-y-8 animate-fade-in-up">
           <Card className="border-destructive/20 bg-gradient-to-br from-destructive/5 to-destructive/10">
             <CardHeader className="text-center">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2, type: "spring" }}
-                className="mx-auto w-16 h-16 rounded-2xl bg-destructive/10 flex items-center justify-center mb-6"
-              >
+              <div className="mx-auto w-16 h-16 rounded-2xl bg-destructive/10 flex items-center justify-center mb-6 animate-fade-in">
                 <AlertCircle className="w-8 h-8 text-destructive" strokeWidth={1.5} />
-              </motion.div>
+              </div>
               <CardTitle className="gelora-typography-h1 text-foreground">Open in Farcaster</CardTitle>
               <CardDescription className="text-base text-muted leading-relaxed">
                 This Mini App is designed to work within the Farcaster ecosystem for the best experience
@@ -131,12 +121,9 @@ function FarcasterAppContent() {
                   { name: "Web3 & DApps", difficulty: "hard", icon: "🌐" },
                   { name: "NFT Knowledge", difficulty: "medium", icon: "🎨" },
                 ].map((quiz, index) => (
-                  <motion.div
+                  <div
                     key={quiz.name}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 * index }}
-                    className="flex items-center justify-between p-4 bg-card rounded-2xl border border-border"
+                    className="flex items-center justify-between p-4 bg-card rounded-2xl border border-border animate-fade-in-up"
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-lg">{quiz.icon}</span>
@@ -145,12 +132,12 @@ function FarcasterAppContent() {
                     <Badge variant={quiz.difficulty === 'easy' ? 'success' : quiz.difficulty === 'medium' ? 'default' : 'destructive'}>
                       {quiz.difficulty}
                     </Badge>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       </div>
     )
   }
@@ -159,39 +146,23 @@ function FarcasterAppContent() {
   if (!user) {
     return (
       <div className="min-h-screen bg-bg p-4 flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-md"
-        >
+        <div className="w-full max-w-md animate-fade-in">
           <Card className="border-accent/20">
             <CardHeader className="text-center">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2, type: "spring" }}
-                className="mx-auto w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center mb-6"
-              >
+              <div className="mx-auto w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center mb-6 animate-fade-in">
                 <User className="w-8 h-8 text-accent" strokeWidth={1.5} />
-              </motion.div>
+              </div>
               <CardTitle className="gelora-typography-h1 text-foreground">Welcome to Gelora Quiz</CardTitle>
               <CardDescription className="text-base text-muted leading-relaxed">
                 Sign in with your Farcaster account to start playing quizzes and tracking your progress
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <AnimatePresence>
-                {error && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl"
-                  >
-                    <p className="text-sm text-destructive">{error}</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {error && (
+                <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl animate-fade-in">
+                  <p className="text-sm text-destructive">{error}</p>
+                </div>
+              )}
               
               <Button onClick={signIn} variant="accent" size="lg" className="w-full">
                 <LogIn className="w-4 h-4 mr-2" strokeWidth={1.5} />
@@ -204,7 +175,7 @@ function FarcasterAppContent() {
               </p>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       </div>
     )
   }
@@ -212,19 +183,11 @@ function FarcasterAppContent() {
   // Main authenticated view
   return (
     <div className="min-h-screen bg-bg p-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-2xl mx-auto pt-8 space-y-8"
-      >
+      <div className="max-w-2xl mx-auto pt-8 space-y-8 animate-fade-in-up">
         {/* Welcome Header */}
         <Card className="border-accent/20">
           <CardHeader>
-            <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              className="flex items-center gap-4"
-            >
+            <div className="flex items-center gap-4 animate-fade-in">
               <div className="relative">
                 <img 
                   src={user.pfpUrl || '/default-avatar.png'} 
@@ -239,7 +202,7 @@ function FarcasterAppContent() {
                 <CardTitle className="text-xl text-foreground">Welcome back, {user.displayName}!</CardTitle>
                 <CardDescription className="text-muted">@{user.username}</CardDescription>
               </div>
-            </motion.div>
+            </div>
           </CardHeader>
           <CardContent>
             <Button onClick={handleContinueToQuizzes} variant="accent" size="lg" className="w-full">
@@ -256,12 +219,7 @@ function FarcasterAppContent() {
             { label: "Completed", value: "0", icon: Trophy, color: "text-muted" },
             { label: "Best Score", value: "-", icon: Zap, color: "text-muted" },
           ].map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 * index }}
-            >
+            <div key={stat.label} className="animate-fade-in-up">
               <Card className="text-center">
                 <CardContent className="p-6">
                   <stat.icon className={`w-6 h-6 mx-auto mb-3 ${stat.color}`} strokeWidth={1.5} />
@@ -269,7 +227,7 @@ function FarcasterAppContent() {
                   <p className="text-xs text-muted mt-1">{stat.label}</p>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           ))}
         </div>
 
@@ -288,12 +246,9 @@ function FarcasterAppContent() {
                 { name: "Web3 & DApps", count: 4, difficulty: "hard", icon: "🌐" },
                 { name: "NFTs", count: 3, difficulty: "medium", icon: "🎨" },
               ].map((category, index) => (
-                <motion.div
+                <div
                   key={category.name}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 * index }}
-                  className="flex items-center justify-between p-4 bg-panel rounded-2xl border border-border hover:bg-card transition-colors cursor-pointer group"
+                  className="flex items-center justify-between p-4 bg-panel rounded-2xl border border-border hover:bg-card transition-colors cursor-pointer group animate-fade-in-up"
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-xl">{category.icon}</span>
@@ -308,12 +263,12 @@ function FarcasterAppContent() {
                   >
                     {category.difficulty}
                   </Badge>
-                </motion.div>
+                </div>
               ))}
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
     </div>
   )
 }

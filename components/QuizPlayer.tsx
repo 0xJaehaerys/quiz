@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-// import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -257,6 +256,7 @@ export function QuizPlayer({ quiz, onComplete, onShare }: QuizPlayerProps) {
                 </div>
               )
             })}
+          </div>
         </div>
       </div>
     )
@@ -264,96 +264,96 @@ export function QuizPlayer({ quiz, onComplete, onShare }: QuizPlayerProps) {
 
   return (
     <div className="space-y-8 animate-fade-in">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Badge 
-              variant={quiz.difficulty === 'easy' ? 'success' : 
-                      quiz.difficulty === 'medium' ? 'default' : 'destructive'}
-            >
-              {quiz.difficulty}
-            </Badge>
-            <span className="text-sm text-muted font-mono">
-              Question {currentQuestionIndex + 1} of {quiz.questions.length}
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Badge 
+            variant={quiz.difficulty === 'easy' ? 'success' : 
+                    quiz.difficulty === 'medium' ? 'default' : 'destructive'}
+          >
+            {quiz.difficulty}
+          </Badge>
+          <span className="text-sm text-muted font-mono">
+            Question {currentQuestionIndex + 1} of {quiz.questions.length}
+          </span>
+        </div>
+        {quiz.timeLimit && timeRemaining > 0 && (
+          <div className="flex items-center gap-2 text-sm">
+            <Timer className="w-4 h-4" strokeWidth={1.5} />
+            <span className={`font-mono ${
+              timeRemaining <= 60 ? "text-destructive" : "text-muted"
+            }`}>
+              {formatTime(timeRemaining)}
             </span>
           </div>
-          {quiz.timeLimit && timeRemaining > 0 && (
-            <div className="flex items-center gap-2 text-sm">
-              <Timer className="w-4 h-4" strokeWidth={1.5} />
-              <span className={`font-mono ${
-                timeRemaining <= 60 ? "text-destructive" : "text-muted"
-              }`}>
-                {formatTime(timeRemaining)}
-              </span>
-            </div>
-          )}
-        </div>
+        )}
+      </div>
 
-        {/* Progress */}
-        <div className="space-y-2">
-          <Progress value={progress} className="h-2 bg-panel" />
-          <div className="text-xs text-muted text-center">
-            {Math.round(progress)}% complete
-          </div>
-        </div>
-
-        {/* Question */}
-        <Card className="border-border">
-          <CardHeader>
-            <CardTitle className="gelora-typography-h1 text-foreground leading-tight">
-              {currentQuestion.text}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {currentQuestion.options.map((option, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleAnswerSelect(index)}
-                  className={`quiz-option w-full text-left hover:scale-[1.01] transition-transform ${
-                    selectedOption === index ? 'selected' : ''
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors ${
-                      selectedOption === index
-                        ? 'border-accent bg-accent text-accent-foreground'
-                        : 'border-border bg-panel'
-                    }`}>
-                      <span className="text-sm font-medium">
-                        {String.fromCharCode(65 + index)}
-                      </span>
-                    </div>
-                    <span className="text-foreground leading-relaxed">{option}</span>
-                  </div>
-                </motion.button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Actions */}
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-muted">
-            {selectedOption === null ? "Select an answer to continue" : "Ready to proceed"}
-          </div>
-          <Button 
-            onClick={handleNextQuestion}
-            disabled={selectedOption === null || isLoading}
-            variant="accent"
-            size="lg"
-            className="min-w-[140px]"
-          >
-            {isLoading ? (
-              <span>Submitting...</span>
-            ) : (
-              <>
-                {isLastQuestion ? "Complete Quiz" : "Next Question"}
-                {!isLastQuestion && <ArrowRight className="w-4 h-4 ml-2" strokeWidth={1.5} />}
-              </>
-            )}
-          </Button>
+      {/* Progress */}
+      <div className="space-y-2">
+        <Progress value={progress} className="h-2 bg-panel" />
+        <div className="text-xs text-muted text-center">
+          {Math.round(progress)}% complete
         </div>
       </div>
+
+      {/* Question */}
+      <Card className="border-border">
+        <CardHeader>
+          <CardTitle className="gelora-typography-h1 text-foreground leading-tight">
+            {currentQuestion.text}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {currentQuestion.options.map((option, index) => (
+              <button
+                key={index}
+                onClick={() => handleAnswerSelect(index)}
+                className={`quiz-option w-full text-left hover:scale-[1.01] transition-transform ${
+                  selectedOption === index ? 'selected' : ''
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors ${
+                    selectedOption === index
+                      ? 'border-accent bg-accent text-accent-foreground'
+                      : 'border-border bg-panel'
+                  }`}>
+                    <span className="text-sm font-medium">
+                      {String.fromCharCode(65 + index)}
+                    </span>
+                  </div>
+                  <span className="text-foreground leading-relaxed">{option}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Actions */}
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-muted">
+          {selectedOption === null ? "Select an answer to continue" : "Ready to proceed"}
+        </div>
+        <Button 
+          onClick={handleNextQuestion}
+          disabled={selectedOption === null || isLoading}
+          variant="accent"
+          size="lg"
+          className="min-w-[140px]"
+        >
+          {isLoading ? (
+            <span>Submitting...</span>
+          ) : (
+            <>
+              {isLastQuestion ? "Complete Quiz" : "Next Question"}
+              {!isLastQuestion && <ArrowRight className="w-4 h-4 ml-2" strokeWidth={1.5} />}
+            </>
+          )}
+        </Button>
+      </div>
+    </div>
   )
 }
