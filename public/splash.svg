@@ -1,0 +1,22 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" fill="url(#gradient)"/>
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#000000;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#333333;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Quiz icon -->
+  <rect x="128" y="192" width="256" height="128" rx="16" fill="#ffffff" opacity="0.9"/>
+  <circle cx="192" cy="256" r="20" fill="#000000"/>
+  <circle cx="256" cy="256" r="20" fill="#000000"/>
+  <circle cx="320" cy="256" r="20" fill="#000000"/>
+  
+  <!-- Trophy -->
+  <path d="M384 320L256 304L128 320L256 336L384 320Z" fill="#FFD700"/>
+  
+  <!-- Title -->
+  <text x="256" y="160" text-anchor="middle" fill="#ffffff" font-family="sans-serif" font-size="36" font-weight="bold">Gelora Quiz</text>
+  <text x="256" y="400" text-anchor="middle" fill="#ffffff" font-family="sans-serif" font-size="18" opacity="0.8">Test Your Knowledge</text>
+</svg>

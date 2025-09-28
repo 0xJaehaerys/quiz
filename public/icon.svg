@@ -1,0 +1,9 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="256" height="256" rx="32" fill="#000000"/>
+  <path d="M64 96h128v64H64V96z" fill="#ffffff" opacity="0.8"/>
+  <circle cx="96" cy="128" r="12" fill="#000000"/>
+  <circle cx="128" cy="128" r="12" fill="#000000"/>
+  <circle cx="160" cy="128" r="12" fill="#000000"/>
+  <path d="M192 192L128 176L64 192L128 208L192 192Z" fill="#ffffff"/>
+  <text x="128" y="64" text-anchor="middle" fill="#ffffff" font-family="sans-serif" font-size="20" font-weight="bold">Quiz</text>
+</svg>

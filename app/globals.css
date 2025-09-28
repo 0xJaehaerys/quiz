@@ -1,0 +1,256 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&display=swap');
+
+@layer base {
+  :root {
+    /* Gelora Dark Theme (Default) */
+    --bg: 220 22% 4%;              /* #0b0d10 */
+    --background: 220 22% 4%;      /* #0b0d10 */
+    --panel: 220 20% 8%;           /* #12151a */
+    --card: 220 18% 10%;           /* #12161c */
+    --foreground: 218 27% 94%;     /* #e6ecf3 */
+    --popover: 220 18% 10%;        /* #12161c */
+    --popover-foreground: 218 27% 94%; /* #e6ecf3 */
+    
+    /* Primary = text color */
+    --primary: 218 27% 94%;        /* #e6ecf3 */
+    --primary-foreground: 220 22% 4%; /* #0b0d10 */
+    
+    /* Secondary = panel */
+    --secondary: 220 20% 8%;       /* #12151a */
+    --secondary-foreground: 218 27% 94%; /* #e6ecf3 */
+    
+    /* Muted colors */
+    --muted: 218 11% 65%;          /* #8b94a7 */
+    --muted-foreground: 218 11% 65%; /* #8b94a7 */
+    
+    /* Accent = Gelora turquoise */
+    --accent: 179 100% 41%;        /* #00d0c7 */
+    --accent-foreground: 183 100% 5%; /* #001a18 */
+    
+    /* Borders */
+    --border: 220 15% 17%;         /* #1d222b */
+    --input: 220 15% 17%;          /* #1d222b */
+    --ring: 179 100% 55%;          /* #16ffe3 - ring focus */
+    
+    /* Destructive */
+    --destructive: 0 72% 51%;      /* #d24444 */
+    --destructive-foreground: 0 0% 98%; /* white */
+    
+    --radius: 1rem;
+  }
+
+  .dark {
+    /* Same values as root since we're dark by default */
+    --bg: 220 22% 4%;
+    --background: 220 22% 4%;
+    --panel: 220 20% 8%;
+    --card: 220 18% 10%;
+    --foreground: 218 27% 94%;
+    --popover: 220 18% 10%;
+    --popover-foreground: 218 27% 94%;
+    --primary: 218 27% 94%;
+    --primary-foreground: 220 22% 4%;
+    --secondary: 220 20% 8%;
+    --secondary-foreground: 218 27% 94%;
+    --muted: 218 11% 65%;
+    --muted-foreground: 218 11% 65%;
+    --accent: 179 100% 41%;
+    --accent-foreground: 183 100% 5%;
+    --border: 220 15% 17%;
+    --input: 220 15% 17%;
+    --ring: 179 100% 55%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+  }
+
+  .light {
+    /* Light theme (optional, if needed) */
+    --bg: 0 0% 100%;
+    --background: 0 0% 100%;
+    --panel: 210 20% 98%;
+    --card: 0 0% 100%;
+    --foreground: 240 10% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 4%;
+    --primary: 240 10% 4%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 210 20% 98%;
+    --secondary-foreground: 240 10% 4%;
+    --muted: 210 7% 56%;
+    --muted-foreground: 210 7% 56%;
+    --accent: 179 100% 41%;
+    --accent-foreground: 183 100% 5%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 179 100% 55%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    @apply antialiased;
+  }
+  
+  body {
+    @apply bg-bg text-foreground font-sans;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Set dark theme by default */
+  html {
+    @apply dark;
+  }
+}
+
+@layer components {
+  /* Gelora Custom Components */
+  .gelora-container {
+    @apply mx-auto max-w-7xl px-4 md:px-6 lg:px-8;
+  }
+  
+  .gelora-card {
+    @apply bg-card border border-border rounded-2xl p-6 md:p-8 shadow-sm;
+  }
+  
+  .gelora-button-accent {
+    @apply bg-accent text-accent-foreground hover:bg-accent/90 
+           focus-visible:ring-2 focus-visible:ring-ring/30 
+           rounded-2xl px-6 py-3 font-medium transition-all duration-150;
+  }
+  
+  .gelora-button-ghost {
+    @apply text-foreground hover:bg-panel hover:border-border 
+           border border-transparent rounded-2xl px-6 py-3 
+           font-medium transition-all duration-150;
+  }
+  
+  .gelora-button-outline {
+    @apply border border-border hover:border-accent 
+           rounded-2xl px-6 py-3 font-medium 
+           transition-all duration-150;
+  }
+  
+  .gelora-input {
+    @apply bg-panel border border-border rounded-xl px-4 py-3
+           placeholder:text-muted focus:ring-2 focus:ring-ring/30
+           focus:border-accent transition-colors;
+  }
+  
+  .gelora-text-primary {
+    @apply text-foreground;
+  }
+  
+  .gelora-text-secondary {
+    @apply text-muted;
+  }
+  
+  .gelora-section-padding {
+    @apply py-10 md:py-14;
+  }
+  
+  .gelora-typography-h1 {
+    @apply text-2xl md:text-3xl font-semibold tracking-tight;
+  }
+  
+  /* Quiz specific styles */
+  .quiz-option {
+    @apply transition-all duration-150 ease-in-out rounded-2xl p-4 
+           border-2 border-border hover:border-accent/50 
+           hover:bg-accent/5 cursor-pointer;
+  }
+
+  .quiz-option.selected {
+    @apply border-accent bg-accent/10;
+  }
+
+  .quiz-option.correct {
+    @apply border-accent bg-accent/15;
+  }
+
+  .quiz-option.incorrect {
+    @apply border-destructive bg-destructive/10;
+  }
+  
+  /* Card hover effects */
+  .gelora-card-hover {
+    @apply transition-all duration-150 ease-in-out 
+           hover:scale-[1.01] hover:ring-1 hover:ring-ring/20;
+  }
+}
+
+@layer utilities {
+  /* Custom animations */
+  .animate-fade-in {
+    animation: fade-in 0.12s ease-out;
+  }
+  
+  .animate-fade-in-up {
+    animation: fade-in-up 0.16s ease-out;
+  }
+  
+  /* Stagger animations for lists */
+  .animate-stagger > * {
+    animation: fade-in-up 0.16s ease-out;
+    animation-fill-mode: both;
+  }
+  
+  .animate-stagger > *:nth-child(1) { animation-delay: 0ms; }
+  .animate-stagger > *:nth-child(2) { animation-delay: 40ms; }
+  .animate-stagger > *:nth-child(3) { animation-delay: 80ms; }
+  .animate-stagger > *:nth-child(4) { animation-delay: 120ms; }
+  .animate-stagger > *:nth-child(5) { animation-delay: 160ms; }
+  .animate-stagger > *:nth-child(6) { animation-delay: 200ms; }
+  
+  /* Typography utilities */
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--bg));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--accent));
+}
+
+::-webkit-scrollbar-corner {
+  background: hsl(var(--bg));
+}
+
+/* Selection styles */
+::selection {
+  background: hsl(var(--accent) / 0.2);
+  color: hsl(var(--foreground));
+}
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}

@@ -1,0 +1,10 @@
+{
+  "miniapp": {
+    "name": "Gelora Quiz",
+    "url": "http://localhost:3000/farcaster",
+    "iconUrl": "http://localhost:3000/icon.svg"
+  },
+  "baseBuilder": {
+    "allowedAddresses": []
+  }
+}
