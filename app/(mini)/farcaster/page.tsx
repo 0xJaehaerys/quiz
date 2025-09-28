@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { NeynarProvider, useFarcasterUser } from '@/components/providers/NeynarProvider'
+import { FarcasterDebug } from '@/components/FarcasterDebug'
 import { notifyReady, setAppTitle, isFarcasterEnvironment } from '@/lib/fc'
 import { ExternalLink, Smartphone, AlertCircle, User, LogIn, Play, Trophy, Target, Zap } from "lucide-react"
 
@@ -277,6 +278,7 @@ export default function FarcasterMiniApp() {
   return (
     <NeynarProvider>
       <FarcasterAppContent />
+      <FarcasterDebug />
     </NeynarProvider>
   )
 }

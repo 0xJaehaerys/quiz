@@ -28,10 +28,10 @@ class NeynarClient {
     this.appId = process.env.NEXT_PUBLIC_NEYNAR_APP_ID || ''
     
     if (!this.apiKey) {
-      console.warn('NEYNAR_API_KEY not set')
+      console.warn('⚠️  NEYNAR_API_KEY not set - some features may not work')
     }
     if (!this.appId) {
-      console.warn('NEXT_PUBLIC_NEYNAR_APP_ID not set')
+      console.warn('⚠️  NEXT_PUBLIC_NEYNAR_APP_ID not set - auth may not work')
     }
   }
 
@@ -43,6 +43,11 @@ class NeynarClient {
   }
 
   async getUserByFid(fid: number): Promise<FarcasterProfile | null> {
+    if (!this.apiKey) {
+      console.warn('Cannot fetch user by FID: NEYNAR_API_KEY not set')
+      return null
+    }
+
     try {
       const response = await axios.get(
         `${NEYNAR_API_BASE}/user/bulk?fids=${fid}`,
@@ -60,6 +65,11 @@ class NeynarClient {
   }
 
   async getUserByUsername(username: string): Promise<FarcasterProfile | null> {
+    if (!this.apiKey) {
+      console.warn('Cannot fetch user by username: NEYNAR_API_KEY not set')
+      return null
+    }
+
     try {
       const response = await axios.get(
         `${NEYNAR_API_BASE}/user/search?q=${encodeURIComponent(username)}`,
@@ -81,38 +91,64 @@ class NeynarClient {
       fid: user.fid,
       username: user.username,
       displayName: user.display_name,
-      bio: user.bio,
-      pfpUrl: user.pfp_url,
-      followerCount: user.follower_count,
-      followingCount: user.following_count,
+      bio: user.bio || '',
+      pfpUrl: user.pfp_url || '',
+      followerCount: user.follower_count || 0,
+      followingCount: user.following_count || 0,
       verifications: user.verifications || [],
     }
   }
 
-  // Mock auth flow for development
-  createMockAuthUrl(): string {
-    const redirectUri = encodeURIComponent(`${process.env.NEXT_PUBLIC_PUBLIC_HOST}/api/fc/callback`)
-    return `${NEYNAR_API_BASE}/auth?client_id=${this.appId}&redirect_uri=${redirectUri}`
+  // Create auth URL for Neynar OAuth
+  createAuthUrl(redirectUri?: string): string {
+    if (!this.appId) {
+      throw new Error('NEXT_PUBLIC_NEYNAR_APP_ID is required for authentication')
+    }
+
+    const redirect = redirectUri || `${process.env.NEXT_PUBLIC_PUBLIC_HOST}/farcaster`
+    const encodedRedirect = encodeURIComponent(redirect)
+    
+    return `https://app.neynar.com/oauth?client_id=${this.appId}&redirect_uri=${encodedRedirect}&scope=read_profile`
   }
 
-  // In a real implementation, this would validate the auth token
+  // Validate auth token with Neynar
   async validateAuthToken(token: string): Promise<FarcasterProfile | null> {
-    // For MVP, return mock user if token exists
+    // Handle mock tokens for development
     if (token && token.startsWith('mock_')) {
-      return {
-        fid: 12345,
-        username: 'testuser',
-        displayName: 'Test User',
-        bio: 'Test Farcaster user for development',
-        pfpUrl: 'https://res.cloudinary.com/merkle-manufactory/image/fetch/c_fill,f_png,w_256/https%3A%2F%2Flh3.googleusercontent.com%2Fa%2FAAcHTtcS5_eBNlN7qVXqjI8GMsQQSQ7UQJQ8q7QQ7QQ',
-        followerCount: 100,
-        followingCount: 50,
-        verifications: [],
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔧 Using mock user for development')
+        return {
+          fid: 12345,
+          username: 'testuser',
+          displayName: 'Test User',
+          bio: 'Test Farcaster user for development',
+          pfpUrl: 'https://res.cloudinary.com/merkle-manufactory/image/fetch/c_fill,f_png,w_256/https%3A%2F%2Flh3.googleusercontent.com%2Fa%2FAAcHTtcS5_eBNlN7qVXqjI8GMsQQSQ7UQJQ8q7QQ7QQ',
+          followerCount: 100,
+          followingCount: 50,
+          verifications: [],
+        }
       }
+      return null
+    }
+
+    // Handle Farcaster SDK tokens
+    if (token.startsWith('fc_')) {
+      const parts = token.split('_')
+      if (parts.length >= 2) {
+        const fid = parseInt(parts[1])
+        if (!isNaN(fid)) {
+          return await this.getUserByFid(fid)
+        }
+      }
+    }
+
+    if (!this.apiKey) {
+      console.warn('Cannot validate token: NEYNAR_API_KEY not set')
+      return null
     }
     
     try {
-      // In production, validate token with Neynar
+      // Validate token with Neynar API
       const response = await axios.get(
         `${NEYNAR_API_BASE}/me`,
         { 
@@ -123,9 +159,39 @@ class NeynarClient {
         }
       )
       
-      return this.mapNeynarUserToProfile(response.data)
+      return this.mapNeynarUserToProfile(response.data.user)
     } catch (error) {
       console.error('Failed to validate auth token:', error)
+      return null
+    }
+  }
+
+  // Exchange OAuth code for access token
+  async exchangeCodeForToken(code: string): Promise<{ token: string; user: FarcasterProfile } | null> {
+    if (!this.apiKey || !this.appId) {
+      throw new Error('NEYNAR_API_KEY and NEXT_PUBLIC_NEYNAR_APP_ID are required')
+    }
+
+    try {
+      const response = await axios.post(
+        `${NEYNAR_API_BASE}/oauth/token`,
+        {
+          client_id: this.appId,
+          client_secret: this.apiKey,
+          code,
+          grant_type: 'authorization_code'
+        },
+        { headers: this.getHeaders() }
+      )
+
+      const { access_token, user } = response.data
+      
+      return {
+        token: access_token,
+        user: this.mapNeynarUserToProfile(user)
+      }
+    } catch (error) {
+      console.error('Failed to exchange code for token:', error)
       return null
     }
   }
