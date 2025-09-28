@@ -160,6 +160,7 @@ export function QuizPlayer({ quiz, onComplete, onShare }: QuizPlayerProps) {
     }
   }
 
+  // Results view
   if (showResult && result) {
     return (
       <div className="space-y-8 animate-fade-in">
@@ -204,7 +205,6 @@ export function QuizPlayer({ quiz, onComplete, onShare }: QuizPlayerProps) {
           </CardContent>
         </Card>
 
-        {/* Answer Review */}
         <div className="space-y-6">
           <h3 className="gelora-typography-h1 text-foreground">Review Your Answers</h3>
           <div className="space-y-4">
@@ -262,9 +262,9 @@ export function QuizPlayer({ quiz, onComplete, onShare }: QuizPlayerProps) {
     )
   }
 
+  // Quiz playing view
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Badge 
@@ -289,7 +289,6 @@ export function QuizPlayer({ quiz, onComplete, onShare }: QuizPlayerProps) {
         )}
       </div>
 
-      {/* Progress */}
       <div className="space-y-2">
         <Progress value={progress} className="h-2 bg-panel" />
         <div className="text-xs text-muted text-center">
@@ -297,7 +296,6 @@ export function QuizPlayer({ quiz, onComplete, onShare }: QuizPlayerProps) {
         </div>
       </div>
 
-      {/* Question */}
       <Card className="border-border">
         <CardHeader>
           <CardTitle className="gelora-typography-h1 text-foreground leading-tight">
@@ -332,7 +330,6 @@ export function QuizPlayer({ quiz, onComplete, onShare }: QuizPlayerProps) {
         </CardContent>
       </Card>
 
-      {/* Actions */}
       <div className="flex items-center justify-between">
         <div className="text-sm text-muted">
           {selectedOption === null ? "Select an answer to continue" : "Ready to proceed"}
