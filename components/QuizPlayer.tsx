@@ -31,61 +31,7 @@ export function QuizPlayer({ quiz, onComplete, onShare }: QuizPlayerProps) {
   const isLastQuestion = currentQuestionIndex === quiz.questions.length - 1
   const progress = ((currentQuestionIndex + 1) / quiz.questions.length) * 100
 
-  // Timer effect
-  useEffect(() => {
-    if (!quiz.timeLimit || showResult) return
-
-    const timer = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 1) {
-          handleTimeUp()
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
-
-    return () => clearInterval(timer)
-  }, [quiz.timeLimit, showResult])
-
-  const handleTimeUp = useCallback(() => {
-    toast({
-      title: "Time's up!",
-      description: "Quiz completed due to time limit",
-      variant: "destructive"
-    })
-    completeQuiz()
-  }, [])
-
-  const handleAnswerSelect = (optionIndex: number) => {
-    setSelectedOption(optionIndex)
-  }
-
-  const handleNextQuestion = async () => {
-    if (selectedOption === null) return
-
-    const timeSpent = (new Date().getTime() - startTime.getTime()) / 1000
-    const isCorrect = selectedOption === currentQuestion.correctAnswer
-
-    const answer: Answer = {
-      questionId: currentQuestion.id,
-      selectedOption,
-      isCorrect,
-      timeSpent: timeSpent / (currentQuestionIndex + 1)
-    }
-
-    const newAnswers = [...answers, answer]
-    setAnswers(newAnswers)
-
-    if (isLastQuestion) {
-      completeQuiz(newAnswers)
-    } else {
-      setCurrentQuestionIndex(prev => prev + 1)
-      setSelectedOption(null)
-    }
-  }
-
-  const completeQuiz = async (finalAnswers = answers) => {
+  const completeQuiz = useCallback(async (finalAnswers = answers) => {
     setIsLoading(true)
     const totalTime = (new Date().getTime() - startTime.getTime()) / 1000
 
@@ -142,6 +88,60 @@ export function QuizPlayer({ quiz, onComplete, onShare }: QuizPlayerProps) {
       console.error('Quiz submission error:', error)
     } finally {
       setIsLoading(false)
+    }
+  }, [answers, quiz.id, quiz.questions.length, startTime, toast, onComplete])
+
+  const handleTimeUp = useCallback(() => {
+    toast({
+      title: "Time's up!",
+      description: "Quiz completed due to time limit",
+      variant: "destructive"
+    })
+    completeQuiz()
+  }, [completeQuiz, toast])
+
+  // Timer effect
+  useEffect(() => {
+    if (!quiz.timeLimit || showResult) return
+
+    const timer = setInterval(() => {
+      setTimeRemaining((prev) => {
+        if (prev <= 1) {
+          handleTimeUp()
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [quiz.timeLimit, showResult, handleTimeUp])
+
+  const handleAnswerSelect = (optionIndex: number) => {
+    setSelectedOption(optionIndex)
+  }
+
+  const handleNextQuestion = async () => {
+    if (selectedOption === null) return
+
+    const timeSpent = (new Date().getTime() - startTime.getTime()) / 1000
+    const isCorrect = selectedOption === currentQuestion.correctAnswer
+
+    const answer: Answer = {
+      questionId: currentQuestion.id,
+      selectedOption,
+      isCorrect,
+      timeSpent: timeSpent / (currentQuestionIndex + 1)
+    }
+
+    const newAnswers = [...answers, answer]
+    setAnswers(newAnswers)
+
+    if (isLastQuestion) {
+      completeQuiz(newAnswers)
+    } else {
+      setCurrentQuestionIndex(prev => prev + 1)
+      setSelectedOption(null)
     }
   }
 

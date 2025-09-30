@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { QuizCard } from '@/components/QuizCard'
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -9,6 +9,7 @@ import { NeynarProvider, useFarcasterUser } from '@/components/providers/NeynarP
 import { Quiz } from '@/types'
 import { ArrowLeft, Filter, Search, Loader2 } from "lucide-react"
 import Link from 'next/link'
+import Image from 'next/image'
 
 function QuizzesContent() {
   const [quizzes, setQuizzes] = useState<Quiz[]>([])
@@ -17,14 +18,6 @@ function QuizzesContent() {
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const { user } = useFarcasterUser()
-
-  useEffect(() => {
-    fetchQuizzes()
-  }, [])
-
-  useEffect(() => {
-    filterQuizzes()
-  }, [quizzes, selectedDifficulty, selectedCategory])
 
   const fetchQuizzes = async () => {
     try {
@@ -42,7 +35,7 @@ function QuizzesContent() {
     }
   }
 
-  const filterQuizzes = () => {
+  const filterQuizzes = useCallback(() => {
     let filtered = quizzes
 
     if (selectedDifficulty !== 'all') {
@@ -54,7 +47,15 @@ function QuizzesContent() {
     }
 
     setFilteredQuizzes(filtered)
-  }
+  }, [quizzes, selectedDifficulty, selectedCategory])
+
+  useEffect(() => {
+    fetchQuizzes()
+  }, [])
+
+  useEffect(() => {
+    filterQuizzes()
+  }, [quizzes, selectedDifficulty, selectedCategory, filterQuizzes])
 
   const categories = Array.from(new Set(quizzes.map(q => q.category)))
   const difficulties = ['easy', 'medium', 'hard']
@@ -92,9 +93,11 @@ function QuizzesContent() {
           
           {user && (
             <div className="flex items-center gap-2">
-              <img 
+              <Image 
                 src={user.pfpUrl || '/default-avatar.png'} 
                 alt={user.displayName}
+                width={32}
+                height={32}
                 className="w-8 h-8 rounded-full"
               />
               <span className="text-sm font-medium hidden sm:inline">

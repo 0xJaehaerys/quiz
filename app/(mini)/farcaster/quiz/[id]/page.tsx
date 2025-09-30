@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { QuizPlayer } from '@/components/QuizPlayer'
 import { Button } from "@/components/ui/button"
@@ -11,6 +11,7 @@ import { Quiz, QuizResult } from '@/types'
 import { generateShareText, getDifficultyColor } from '@/lib/utils'
 import { ArrowLeft, Loader2, AlertCircle, Trophy, Share2 } from "lucide-react"
 import Link from 'next/link'
+import Image from 'next/image'
 import { useToast } from '@/hooks/useToast'
 
 function QuizPageContent() {
@@ -25,13 +26,7 @@ function QuizPageContent() {
 
   const quizId = params.id as string
 
-  useEffect(() => {
-    if (quizId) {
-      fetchQuizData()
-    }
-  }, [quizId])
-
-  const fetchQuizData = async () => {
+  const fetchQuizData = useCallback(async () => {
     try {
       setIsLoading(true)
       const response = await fetch(`/api/quizzes/${quizId}`)
@@ -51,7 +46,13 @@ function QuizPageContent() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [quizId])
+
+  useEffect(() => {
+    if (quizId) {
+      fetchQuizData()
+    }
+  }, [quizId, fetchQuizData])
 
   const handleQuizComplete = async (result: QuizResult) => {
     toast({
@@ -157,9 +158,11 @@ function QuizPageContent() {
           
           {user && (
             <div className="flex items-center gap-2">
-              <img 
+              <Image 
                 src={user.pfpUrl || '/default-avatar.png'} 
                 alt={user.displayName}
+                width={32}
+                height={32}
                 className="w-8 h-8 rounded-full"
               />
             </div>

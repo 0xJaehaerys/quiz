@@ -43,12 +43,13 @@ export function FarcasterDebug() {
       try {
         await initFarcasterSDK()
         const sdk = getFarcasterSDK()
+        const context = sdk.context ? await sdk.context : null
         info.sdk = {
           initialized: true,
           hasActions: !!sdk.actions,
-          hasContext: !!sdk.context,
-          contextKeys: sdk.context ? Object.keys(sdk.context) : [],
-          isInstalled: sdk.context?.isInstalled
+          hasContext: !!context,
+          contextKeys: context ? Object.keys(context) : [],
+          isInstalled: !!(context as any)?.isInstalled
         }
       } catch (error) {
         info.sdk = {

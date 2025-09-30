@@ -43,8 +43,8 @@ export async function setAppTitle(title: string) {
     if (!isInitialized) {
       await initFarcasterSDK()
     }
-    if (sdk.actions.setTitle) {
-      await sdk.actions.setTitle(title)
+    if ((sdk.actions as any).setTitle) {
+      await (sdk.actions as any).setTitle(title)
     }
   } catch (error) {
     console.warn('Failed to set app title:', error)
@@ -75,8 +75,8 @@ export function isFarcasterEnvironment(): boolean {
     // Check for Farcaster context
     const hasFarcasterContext = !!(window as any).farcaster || !!(window as any).fc
     
-    // Check if SDK context exists
-    const hasSdkContext = sdk?.context?.isInstalled || false
+    // Check if SDK exists (simplified check)
+    const hasSdkContext = !!sdk?.context
     
     return isFarcasterUA || hasFarcasterContext || hasSdkContext
   } catch (error) {
@@ -97,16 +97,19 @@ export async function getCurrentFarcasterUser() {
     }
     
     // Try to get user context from SDK
-    if (sdk.context?.user) {
-      return {
-        fid: sdk.context.user.fid,
-        username: sdk.context.user.username,
-        displayName: sdk.context.user.displayName,
-        pfpUrl: sdk.context.user.pfpUrl,
-        bio: sdk.context.user.bio || '',
-        followerCount: sdk.context.user.followerCount || 0,
-        followingCount: sdk.context.user.followingCount || 0,
-        verifications: sdk.context.user.verifications || []
+    if (sdk.context) {
+      const context = await sdk.context
+      if (context?.user) {
+        return {
+          fid: context.user.fid,
+          username: context.user.username || '',
+          displayName: context.user.displayName || '',
+          pfpUrl: context.user.pfpUrl || '',
+          bio: (context.user as any).bio || '',
+          followerCount: (context.user as any).followerCount || 0,
+          followingCount: (context.user as any).followingCount || 0,
+          verifications: (context.user as any).verifications || []
+        }
       }
     }
     
@@ -125,8 +128,8 @@ export async function triggerFarcasterAuth() {
     }
     
     // Use Farcaster's built-in auth flow
-    if (sdk.actions.signIn) {
-      await sdk.actions.signIn()
+    if ((sdk.actions as any).signIn) {
+      await (sdk.actions as any).signIn()
       return true
     }
     

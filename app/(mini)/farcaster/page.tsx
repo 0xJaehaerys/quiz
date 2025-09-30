@@ -9,6 +9,7 @@ import { NeynarProvider, useFarcasterUser } from '@/components/providers/NeynarP
 import { FarcasterDebug } from '@/components/FarcasterDebug'
 import { notifyReady, setAppTitle, isFarcasterEnvironment } from '@/lib/fc'
 import { ExternalLink, Smartphone, AlertCircle, User, LogIn, Play, Trophy, Target, Zap } from "lucide-react"
+import Image from 'next/image'
 
 function FarcasterAppContent() {
   const [isReady, setIsReady] = useState(false)
@@ -190,9 +191,11 @@ function FarcasterAppContent() {
           <CardHeader>
             <div className="flex items-center gap-4 animate-fade-in">
               <div className="relative">
-                <img 
+                <Image 
                   src={user.pfpUrl || '/default-avatar.png'} 
                   alt={user.displayName}
+                  width={56}
+                  height={56}
                   className="w-14 h-14 rounded-2xl border-2 border-accent/20"
                 />
                 <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-accent rounded-full flex items-center justify-center">
