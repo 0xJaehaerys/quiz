@@ -8,7 +8,7 @@ export interface NeynarUser {
   username: string
   display_name: string
   bio: string
-  pfp_url: string
+  pfp_url: string | { url: string } | null
   follower_count: number
   following_count: number
   verifications: string[]
@@ -87,12 +87,23 @@ class NeynarClient {
   }
 
   private mapNeynarUserToProfile(user: NeynarUser): FarcasterProfile {
+    // Ensure pfpUrl is always a string
+    let pfpUrl = ''
+    if (user.pfp_url) {
+      if (typeof user.pfp_url === 'string') {
+        pfpUrl = user.pfp_url
+      } else if (typeof user.pfp_url === 'object' && user.pfp_url.url) {
+        // Handle case where pfp_url is an object with a url property
+        pfpUrl = user.pfp_url.url
+      }
+    }
+
     return {
       fid: user.fid,
       username: user.username,
       displayName: user.display_name,
       bio: user.bio || '',
-      pfpUrl: user.pfp_url || '',
+      pfpUrl,
       followerCount: user.follower_count || 0,
       followingCount: user.following_count || 0,
       verifications: user.verifications || [],

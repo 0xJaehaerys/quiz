@@ -291,3 +291,5 @@ export default function QuizPage() {
     </NeynarProvider>
   )
 }
+
+
