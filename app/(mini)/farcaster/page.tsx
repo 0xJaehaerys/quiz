@@ -20,19 +20,26 @@ function FarcasterAppContent() {
   useEffect(() => {
     const initializeApp = async () => {
       try {
+        console.log('🚀 Initializing Gelora Quiz app...')
+        
         // Check if we're in Farcaster environment
         const isInFarcaster = isFarcasterEnvironment()
         setIsFarcasterEnv(isInFarcaster)
 
-        if (isInFarcaster) {
-          // Notify Farcaster that the app is ready
-          await notifyReady()
+        // Always try to notify Farcaster - it will fail gracefully if not in Farcaster
+        const readyResult = await notifyReady()
+        
+        if (readyResult && isInFarcaster) {
+          console.log('🎯 Successfully initialized in Farcaster environment')
           await setAppTitle('Gelora Quiz')
+        } else {
+          console.log('🌐 Running in browser environment')
         }
         
         setIsReady(true)
+        console.log('✅ App initialization complete')
       } catch (error) {
-        console.error('Failed to initialize app:', error)
+        console.error('❌ Failed to initialize app:', error)
         setIsReady(true)
       }
     }
@@ -58,24 +65,24 @@ function FarcasterAppContent() {
     )
   }
 
-  // Show instructions if not in Farcaster environment
-  if (!isFarcasterEnv) {
+  // Show instructions if not in Farcaster environment  
+  if (!isFarcasterEnv && !user) {
     return (
       <div className="min-h-screen bg-bg p-4">
         <div className="max-w-2xl mx-auto pt-12 space-y-8 animate-fade-in-up">
-          <Card className="border-destructive/20 bg-gradient-to-br from-destructive/5 to-destructive/10">
+          <Card className="border-accent/20 bg-gradient-to-br from-accent/5 to-accent/10">
             <CardHeader className="text-center">
-              <div className="mx-auto w-16 h-16 rounded-2xl bg-destructive/10 flex items-center justify-center mb-6 animate-fade-in">
-                <AlertCircle className="w-8 h-8 text-destructive" strokeWidth={1.5} />
+              <div className="mx-auto w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center mb-6 animate-fade-in">
+                <Smartphone className="w-8 h-8 text-accent" strokeWidth={1.5} />
               </div>
-              <CardTitle className="gelora-typography-h1 text-foreground">Open in Farcaster</CardTitle>
+              <CardTitle className="gelora-typography-h1 text-foreground">Welcome to Gelora Quiz</CardTitle>
               <CardDescription className="text-base text-muted leading-relaxed">
-                This Mini App is designed to work within the Farcaster ecosystem for the best experience
+                Best experience in Farcaster app, but also works great in your browser
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="bg-panel rounded-2xl p-6 border border-border space-y-4">
-                <h3 className="font-semibold text-foreground">To access Gelora Quiz:</h3>
+                <h3 className="font-semibold text-foreground">For Farcaster Mobile App (Recommended):</h3>
                 <ol className="space-y-4 text-sm">
                   <li className="flex gap-3">
                     <span className="w-6 h-6 rounded-full bg-accent text-accent-foreground text-xs flex items-center justify-center shrink-0 mt-0.5 font-medium">1</span>
@@ -92,16 +99,28 @@ function FarcasterAppContent() {
                 </ol>
               </div>
               
-              <Button variant="accent" size="lg" className="w-full" asChild>
-                <a 
-                  href="https://docs.farcaster.xyz/developers/mini-apps/overview" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
+              <div className="space-y-3">
+                <Button 
+                  onClick={() => setIsFarcasterEnv(true)} 
+                  variant="accent" 
+                  size="lg" 
+                  className="w-full"
                 >
-                  <ExternalLink className="w-4 h-4 mr-2" strokeWidth={1.5} />
-                  Learn About Mini Apps
-                </a>
-              </Button>
+                  <Play className="w-4 h-4 mr-2" strokeWidth={1.5} />
+                  Continue in Browser
+                </Button>
+                
+                <Button variant="outline" size="sm" className="w-full" asChild>
+                  <a 
+                    href="https://docs.farcaster.xyz/developers/mini-apps/overview" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >
+                    <ExternalLink className="w-4 h-4 mr-2" strokeWidth={1.5} />
+                    Learn About Mini Apps
+                  </a>
+                </Button>
+              </div>
             </CardContent>
           </Card>
 

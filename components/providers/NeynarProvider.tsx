@@ -34,23 +34,42 @@ export function NeynarProvider({ children }: NeynarProviderProps) {
       setIsLoading(true)
       setError(null)
 
-      // First, check if we're in Farcaster environment
-      if (!isFarcasterEnvironment()) {
-        console.log('Not in Farcaster environment')
-        setIsLoading(false)
-        return
+      // Check for OAuth callback parameters
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search)
+        const code = urlParams.get('code')
+        
+        if (code) {
+          console.log('Found OAuth code, exchanging for token...')
+          try {
+            const result = await neynar.exchangeCodeForToken(code)
+            if (result?.user) {
+              setUser(result.user)
+              localStorage.setItem('farcaster_token', result.token)
+              // Clean up URL
+              window.history.replaceState({}, document.title, window.location.pathname)
+              setIsLoading(false)
+              return
+            }
+          } catch (oauthError) {
+            console.error('OAuth token exchange failed:', oauthError)
+          }
+        }
       }
 
-      // Try to get current user from Farcaster SDK
-      const farcasterUser = await getCurrentFarcasterUser()
-      
-      if (farcasterUser) {
-        setUser(farcasterUser)
-        console.log('Found Farcaster user:', farcasterUser.username)
-        return
+      // Try to get current user from Farcaster SDK (if in Farcaster environment)
+      if (isFarcasterEnvironment()) {
+        const farcasterUser = await getCurrentFarcasterUser()
+        
+        if (farcasterUser) {
+          setUser(farcasterUser)
+          console.log('Found Farcaster user:', farcasterUser.username)
+          setIsLoading(false)
+          return
+        }
       }
 
-      // Fallback: check localStorage for stored token
+      // Check localStorage for stored token
       const token = localStorage.getItem('farcaster_token')
       
       if (token) {
@@ -75,25 +94,41 @@ export function NeynarProvider({ children }: NeynarProviderProps) {
       setIsLoading(true)
       setError(null)
 
-      if (!isFarcasterEnvironment()) {
-        throw new Error('Please open this app in Farcaster')
+      // Check if we're in Farcaster environment
+      if (isFarcasterEnvironment()) {
+        // Try Farcaster SDK auth first
+        const authSuccess = await triggerFarcasterAuth()
+        
+        if (authSuccess) {
+          // Check for user after auth
+          setTimeout(async () => {
+            const farcasterUser = await getCurrentFarcasterUser()
+            if (farcasterUser) {
+              setUser(farcasterUser)
+              // Store a token for session persistence
+              localStorage.setItem('farcaster_token', `fc_${farcasterUser.fid}_${Date.now()}`)
+            }
+          }, 1000)
+          return
+        }
       }
 
-      // Try Farcaster SDK auth first
-      const authSuccess = await triggerFarcasterAuth()
-      
-      if (authSuccess) {
-        // Check for user after auth
-        setTimeout(async () => {
-          const farcasterUser = await getCurrentFarcasterUser()
-          if (farcasterUser) {
-            setUser(farcasterUser)
-            // Store a token for session persistence
-            localStorage.setItem('farcaster_token', `fc_${farcasterUser.fid}_${Date.now()}`)
-          }
-        }, 1000)
-      } else {
-        // Fallback for development/testing
+      // For browser/non-Farcaster environment, use Neynar OAuth
+      try {
+        const authUrl = neynar.createAuthUrl()
+        console.log('Opening Neynar auth:', authUrl)
+        
+        // Open auth URL in new window/tab
+        if (typeof window !== 'undefined') {
+          window.open(authUrl, '_blank', 'width=500,height=600,scrollbars=yes,resizable=yes')
+        }
+        
+        // Show instructions to user
+        setError('Please complete authentication in the popup window and return here.')
+      } catch (authError) {
+        console.error('Neynar auth failed:', authError)
+        
+        // Final fallback for development/testing
         if (process.env.NODE_ENV === 'development') {
           console.warn('Using mock auth for development')
           const mockUser: FarcasterProfile = {
@@ -110,7 +145,7 @@ export function NeynarProvider({ children }: NeynarProviderProps) {
           setUser(mockUser)
           localStorage.setItem('farcaster_token', `mock_${Date.now()}`)
         } else {
-          throw new Error('Farcaster authentication failed')
+          throw new Error('Authentication failed. Please try again or use the Farcaster mobile app.')
         }
       }
     } catch (err) {

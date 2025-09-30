@@ -10,7 +10,7 @@ export async function initFarcasterSDK() {
 
   if (!isInitialized) {
     try {
-      await sdk.actions.ready()
+      // Just initialize SDK, don't call ready() yet
       isInitialized = true
       console.log('Farcaster SDK initialized successfully')
     } catch (error) {
@@ -28,13 +28,25 @@ export function getFarcasterSDK() {
 
 export async function notifyReady() {
   try {
+    if (typeof window === 'undefined') {
+      console.log('Not in browser, skipping ready notification')
+      return
+    }
+
     if (!isInitialized) {
       await initFarcasterSDK()
     }
+    
+    // Call ready to notify Farcaster that the app is loaded
+    console.log('📢 Calling sdk.actions.ready()...')
     await sdk.actions.ready()
-    console.log('Mini app ready')
+    console.log('✅ Mini app ready notification sent to Farcaster successfully!')
+    
+    return true
   } catch (error) {
-    console.warn('Failed to notify Farcaster that app is ready:', error)
+    console.warn('⚠️ Failed to notify Farcaster that app is ready:', error)
+    console.warn('This is normal if not running in Farcaster environment')
+    return false
   }
 }
 
@@ -70,18 +82,34 @@ export function isFarcasterEnvironment(): boolean {
   try {
     // Check for Farcaster-specific user agent or context
     const userAgent = window.navigator.userAgent.toLowerCase()
-    const isFarcasterUA = userAgent.includes('farcaster')
+    const isFarcasterUA = userAgent.includes('farcaster') || userAgent.includes('warpcast')
     
     // Check for Farcaster context
     const hasFarcasterContext = !!(window as any).farcaster || !!(window as any).fc
     
-    // Check if SDK exists (simplified check)
+    // Check if SDK exists and has context
     const hasSdkContext = !!sdk?.context
     
-    return isFarcasterUA || hasFarcasterContext || hasSdkContext
+    // Check for Mini App specific indicators
+    const hasFrameContext = !!(window as any).parent && window.parent !== window
+    
+    // More aggressive detection - if any indicator exists, assume Farcaster
+    const result = isFarcasterUA || hasFarcasterContext || hasSdkContext || hasFrameContext
+    
+    console.log('🔍 Farcaster Environment Check:', {
+      userAgent: userAgent,
+      isFarcasterUA,
+      hasFarcasterContext,
+      hasSdkContext,
+      hasFrameContext,
+      result
+    })
+    
+    return result
   } catch (error) {
     console.error('Error checking Farcaster environment:', error)
-    return false
+    // If in doubt, assume we might be in Farcaster (better to try and fail gracefully)
+    return true
   }
 }
 
