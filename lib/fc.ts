@@ -1,5 +1,5 @@
 // Farcaster Mini App SDK integration
-let sdk: any = null
+let farcasterSdk: any = null
 let isInitialized = false
 
 export async function initFarcasterSDK() {
@@ -13,14 +13,19 @@ export async function initFarcasterSDK() {
   }
 
   try {
-    // Import individual functions from SDK
-    sdk = await import('@farcaster/miniapp-sdk')
+    // Import the sdk object from the package
+    const { sdk } = await import('@farcaster/miniapp-sdk')
+    farcasterSdk = sdk
     isInitialized = true
     console.log('🔗 Farcaster SDK imported successfully')
-    console.log('Available SDK functions:', Object.keys(sdk))
+    console.log('SDK structure:', Object.keys(sdk))
+    if (sdk.actions) {
+      console.log('SDK actions:', Object.keys(sdk.actions))
+    }
     return true
   } catch (error) {
     console.warn('⚠️ Farcaster SDK not available:', error)
+    console.warn('Error details:', error)
     return false
   }
 }
@@ -41,26 +46,28 @@ export async function notifyReady() {
       }
     }
     
-    if (!sdk || !sdk.Ready) {
-      console.warn('SDK Ready function not available')
+    if (!farcasterSdk || !farcasterSdk.actions || !farcasterSdk.actions.ready) {
+      console.warn('SDK actions.ready not available')
+      console.warn('Available SDK:', farcasterSdk)
       return false
     }
     
-    // Call ready function directly
-    console.log('📢 Calling sdk.Ready()...')
-    await sdk.Ready()
+    // Call ready using the correct structure
+    console.log('📢 Calling sdk.actions.ready()...')
+    await farcasterSdk.actions.ready()
     console.log('✅ Mini app ready notification sent to Farcaster successfully!')
     
     return true
   } catch (error) {
     console.warn('⚠️ Failed to notify Farcaster that app is ready:', error)
+    console.warn('Error details:', error)
     console.warn('This is normal if not running in Farcaster environment')
     return false
   }
 }
 
 export function getFarcasterSDK() {
-  return sdk
+  return farcasterSdk
 }
 
 export async function setAppTitle(title: string) {
@@ -69,10 +76,14 @@ export async function setAppTitle(title: string) {
       await initFarcasterSDK()
     }
     
-    // Check if there's a setTitle function available
-    // Note: This might not exist in current SDK version
-    console.log('📝 App title requested:', title)
-    console.warn('setTitle function not available in current SDK version')
+    // Check if there's a setTitle action available
+    if (farcasterSdk?.actions?.setTitle) {
+      await farcasterSdk.actions.setTitle(title)
+      console.log('📝 App title set:', title)
+    } else {
+      console.log('📝 App title requested:', title)
+      console.warn('setTitle action not available in current SDK version')
+    }
   } catch (error) {
     console.warn('Failed to set app title:', error)
   }
@@ -84,9 +95,15 @@ export async function openUrl(url: string) {
       await initFarcasterSDK()
     }
     
-    // For now, use fallback since SDK structure is different
-    console.log('🔗 Opening URL:', url)
-    window.open(url, '_blank')
+    // Check if there's an openUrl action available
+    if (farcasterSdk?.actions?.openUrl) {
+      await farcasterSdk.actions.openUrl(url)
+      console.log('🔗 URL opened via SDK:', url)
+    } else {
+      // Fallback to window.open
+      console.log('🔗 Opening URL via fallback:', url)
+      window.open(url, '_blank')
+    }
   } catch (error) {
     console.warn('Failed to open URL:', error)
     // Fallback to window.open
@@ -106,7 +123,7 @@ export function isFarcasterEnvironment(): boolean {
     const hasFarcasterContext = !!(window as any).farcaster || !!(window as any).fc
     
     // Check if SDK exists and has context
-    const hasSdkContext = !!sdk?.context
+    const hasSdkContext = !!farcasterSdk?.context
     
     // Check for Mini App specific indicators
     const hasFrameContext = !!(window as any).parent && window.parent !== window
@@ -146,9 +163,9 @@ export async function getCurrentFarcasterUser() {
     }
     
     // Try to get user context from SDK
-    if (sdk?.Context) {
+    if (farcasterSdk?.context) {
       try {
-        const context = await sdk.Context()
+        const context = await farcasterSdk.context
         console.log('Context received:', context)
         if (context?.user) {
           return {
@@ -185,8 +202,8 @@ export async function triggerFarcasterAuth() {
     }
     
     // Use Farcaster's built-in auth flow
-    if (sdk?.SignIn) {
-      await sdk.SignIn()
+    if (farcasterSdk?.actions?.signIn) {
+      await farcasterSdk.actions.signIn()
       return true
     }
     
