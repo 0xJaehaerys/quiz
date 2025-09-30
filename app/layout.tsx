@@ -37,11 +37,13 @@ export const metadata: Metadata = {
     title: 'Gelora Quiz',
     description: 'Interactive quiz platform built for Farcaster',
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 }
 
 export default function RootLayout({

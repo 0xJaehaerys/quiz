@@ -118,35 +118,36 @@
 @layer components {
   /* Gelora Custom Components */
   .gelora-container {
-    @apply mx-auto max-w-7xl px-4 md:px-6 lg:px-8;
+    @apply mx-auto max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8;
   }
   
   .gelora-card {
-    @apply bg-card border border-border rounded-2xl p-6 md:p-8 shadow-sm;
+    @apply bg-card border border-border rounded-2xl p-4 sm:p-6 md:p-8 shadow-sm;
   }
   
   .gelora-button-accent {
     @apply bg-accent text-accent-foreground hover:bg-accent/90 
            focus-visible:ring-2 focus-visible:ring-ring/30 
-           rounded-2xl px-6 py-3 font-medium transition-all duration-150;
+           rounded-2xl px-4 sm:px-6 py-3 sm:py-3 font-medium transition-all duration-150
+           h-11 sm:h-12 text-base;
   }
   
   .gelora-button-ghost {
     @apply text-foreground hover:bg-panel hover:border-border 
-           border border-transparent rounded-2xl px-6 py-3 
-           font-medium transition-all duration-150;
+           border border-transparent rounded-2xl px-4 sm:px-6 py-3 sm:py-3 
+           font-medium transition-all duration-150 h-10 sm:h-11;
   }
   
   .gelora-button-outline {
     @apply border border-border hover:border-accent 
-           rounded-2xl px-6 py-3 font-medium 
-           transition-all duration-150;
+           rounded-2xl px-4 sm:px-6 py-3 sm:py-3 font-medium 
+           transition-all duration-150 h-10 sm:h-11;
   }
   
   .gelora-input {
-    @apply bg-panel border border-border rounded-xl px-4 py-3
+    @apply bg-panel border border-border rounded-xl px-3 sm:px-4 py-3 sm:py-3
            placeholder:text-muted focus:ring-2 focus:ring-ring/30
-           focus:border-accent transition-colors;
+           focus:border-accent transition-colors h-11 sm:h-12 text-base;
   }
   
   .gelora-text-primary {
@@ -158,11 +159,11 @@
   }
   
   .gelora-section-padding {
-    @apply py-10 md:py-14;
+    @apply py-8 sm:py-10 md:py-14;
   }
   
   .gelora-typography-h1 {
-    @apply text-2xl md:text-3xl font-semibold tracking-tight;
+    @apply text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight;
   }
   
   /* Quiz specific styles */

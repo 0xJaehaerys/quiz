@@ -72,20 +72,20 @@ function QuizzesContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/30 p-4">
-      <div className="container mx-auto max-w-4xl space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted/30 p-3 sm:p-4">
+      <div className="container mx-auto max-w-4xl space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="flex items-start justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Link href="/farcaster">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="h-10 px-3">
                 <ArrowLeft className="w-4 h-4 mr-1" />
-                Back
+                <span className="hidden sm:inline">Back</span>
               </Button>
             </Link>
             <div>
-              <h1 className="text-2xl font-bold">Quiz Catalog</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-xl sm:text-2xl font-bold">Quiz Catalog</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
                 {filteredQuizzes.length} quiz{filteredQuizzes.length !== 1 ? 'es' : ''} available
               </p>
             </div>
@@ -109,17 +109,18 @@ function QuizzesContent() {
 
         {/* Filters */}
         <Card>
-          <CardContent className="p-4">
-            <div className="flex flex-wrap gap-4">
-              <div className="space-y-2">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4">
+              <div className="space-y-2 min-w-0 flex-1">
                 <label className="text-sm font-medium flex items-center gap-2">
                   <Filter className="w-4 h-4" />
                   Difficulty
                 </label>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   <Button
                     variant={selectedDifficulty === 'all' ? 'default' : 'outline'}
                     size="sm"
+                    className="h-9 px-3 text-xs sm:text-sm"
                     onClick={() => setSelectedDifficulty('all')}
                   >
                     All
@@ -130,7 +131,7 @@ function QuizzesContent() {
                       variant={selectedDifficulty === difficulty ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setSelectedDifficulty(difficulty)}
-                      className="capitalize"
+                      className="capitalize h-9 px-3 text-xs sm:text-sm"
                     >
                       {difficulty}
                     </Button>
@@ -138,12 +139,13 @@ function QuizzesContent() {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 min-w-0 flex-1">
                 <label className="text-sm font-medium">Category</label>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   <Button
                     variant={selectedCategory === 'all' ? 'default' : 'outline'}
                     size="sm"
+                    className="h-9 px-3 text-xs sm:text-sm"
                     onClick={() => setSelectedCategory('all')}
                   >
                     All
@@ -153,6 +155,7 @@ function QuizzesContent() {
                       key={category}
                       variant={selectedCategory === category ? 'default' : 'outline'}
                       size="sm"
+                      className="h-9 px-3 text-xs sm:text-sm"
                       onClick={() => setSelectedCategory(category)}
                     >
                       {category}
@@ -185,7 +188,7 @@ function QuizzesContent() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
             {filteredQuizzes.map((quiz) => (
               <QuizCard 
                 key={quiz.id} 
@@ -198,19 +201,19 @@ function QuizzesContent() {
 
         {/* Stats Footer */}
         <Card>
-          <CardContent className="p-4">
-            <div className="grid grid-cols-3 gap-4 text-center">
+          <CardContent className="p-3 sm:p-4">
+            <div className="grid grid-cols-3 gap-3 sm:gap-4 text-center">
               <div>
-                <p className="text-2xl font-bold text-primary">{quizzes.length}</p>
-                <p className="text-sm text-muted-foreground">Total Quizzes</p>
+                <p className="text-lg sm:text-2xl font-bold text-primary">{quizzes.length}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Total Quizzes</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-primary">{categories.length}</p>
-                <p className="text-sm text-muted-foreground">Categories</p>
+                <p className="text-lg sm:text-2xl font-bold text-primary">{categories.length}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Categories</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-primary">3</p>
-                <p className="text-sm text-muted-foreground">Difficulty Levels</p>
+                <p className="text-lg sm:text-2xl font-bold text-primary">3</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Levels</p>
               </div>
             </div>
           </CardContent>

@@ -93,8 +93,8 @@ function FarcasterAppContent() {
   // Show instructions if not in Farcaster environment  
   if (!isFarcasterEnv && !user) {
     return (
-      <div className="min-h-screen bg-bg p-4">
-        <div className="max-w-2xl mx-auto pt-12 space-y-8 animate-fade-in-up">
+      <div className="min-h-screen bg-bg p-3 sm:p-4">
+        <div className="max-w-2xl mx-auto pt-8 sm:pt-12 space-y-6 sm:space-y-8 animate-fade-in-up">
           <Card className="border-accent/20 bg-gradient-to-br from-accent/5 to-accent/10">
             <CardHeader className="text-center">
               <div className="mx-auto w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center mb-6 animate-fade-in">
@@ -129,13 +129,13 @@ function FarcasterAppContent() {
                   onClick={() => setIsFarcasterEnv(true)} 
                   variant="accent" 
                   size="lg" 
-                  className="w-full"
+                  className="w-full h-12 sm:h-14 text-base font-medium"
                 >
-                  <Play className="w-4 h-4 mr-2" strokeWidth={1.5} />
+                  <Play className="w-5 h-5 mr-2" strokeWidth={1.5} />
                   Continue in Browser
                 </Button>
                 
-                <Button variant="outline" size="sm" className="w-full" asChild>
+                <Button variant="outline" size="default" className="w-full h-11 sm:h-12" asChild>
                   <a 
                     href="https://docs.farcaster.xyz/developers/mini-apps/overview" 
                     target="_blank" 
@@ -191,31 +191,31 @@ function FarcasterAppContent() {
   // Show sign in if not authenticated
   if (!user) {
     return (
-      <div className="min-h-screen bg-bg p-4 flex items-center justify-center">
+      <div className="min-h-screen bg-bg p-3 sm:p-4 flex items-center justify-center">
         <div className="w-full max-w-md animate-fade-in">
           <Card className="border-accent/20">
-            <CardHeader className="text-center">
-              <div className="mx-auto w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center mb-6 animate-fade-in">
+            <CardHeader className="text-center p-4 sm:p-6">
+              <div className="mx-auto w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center mb-4 sm:mb-6 animate-fade-in">
                 <User className="w-8 h-8 text-accent" strokeWidth={1.5} />
               </div>
-              <CardTitle className="gelora-typography-h1 text-foreground">Welcome to Gelora Quiz</CardTitle>
-              <CardDescription className="text-base text-muted leading-relaxed">
+              <CardTitle className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight text-foreground">Welcome to Gelora Quiz</CardTitle>
+              <CardDescription className="text-sm sm:text-base text-muted leading-relaxed mt-2">
                 Sign in with your Farcaster account to start playing quizzes and tracking your progress
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
               {error && (
-                <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl animate-fade-in">
-                  <p className="text-sm text-destructive">{error}</p>
+                <div className="p-3 sm:p-4 bg-destructive/10 border border-destructive/20 rounded-xl animate-fade-in">
+                  <p className="text-xs sm:text-sm text-destructive">{error}</p>
                 </div>
               )}
               
-              <Button onClick={signIn} variant="accent" size="lg" className="w-full">
-                <LogIn className="w-4 h-4 mr-2" strokeWidth={1.5} />
+              <Button onClick={signIn} variant="accent" size="lg" className="w-full h-12 sm:h-14 text-base font-medium">
+                <LogIn className="w-5 h-5 mr-2" strokeWidth={1.5} />
                 Sign in with Farcaster
               </Button>
               
-              <p className="text-xs text-muted text-center leading-relaxed">
+              <p className="text-xs sm:text-sm text-muted text-center leading-relaxed">
                 Your Farcaster profile will be used to save quiz progress and display on leaderboards.
                 We respect your privacy and only access necessary profile information.
               </p>
@@ -228,8 +228,8 @@ function FarcasterAppContent() {
 
   // Main authenticated view
   return (
-    <div className="min-h-screen bg-bg p-4">
-      <div className="max-w-2xl mx-auto pt-8 space-y-8 animate-fade-in-up">
+    <div className="min-h-screen bg-bg p-3 sm:p-4">
+      <div className="max-w-2xl mx-auto pt-6 sm:pt-8 space-y-6 sm:space-y-8 animate-fade-in-up">
         {/* Welcome Header */}
         <Card className="border-accent/20">
           <CardHeader>
@@ -253,15 +253,15 @@ function FarcasterAppContent() {
             </div>
           </CardHeader>
           <CardContent>
-            <Button onClick={handleContinueToQuizzes} variant="accent" size="lg" className="w-full">
-              <Play className="w-4 h-4 mr-2" strokeWidth={1.5} />
+            <Button onClick={handleContinueToQuizzes} variant="accent" size="lg" className="w-full h-12 sm:h-14 text-base font-medium">
+              <Play className="w-5 h-5 mr-2" strokeWidth={1.5} />
               Start Playing Quizzes
             </Button>
           </CardContent>
         </Card>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-3 sm:gap-4">
           {[
             { label: "Available Quizzes", value: "12", icon: Target, color: "text-accent" },
             { label: "Completed", value: "0", icon: Trophy, color: "text-muted" },
@@ -269,10 +269,10 @@ function FarcasterAppContent() {
           ].map((stat, index) => (
             <div key={stat.label} className="animate-fade-in-up">
               <Card className="text-center">
-                <CardContent className="p-6">
-                  <stat.icon className={`w-6 h-6 mx-auto mb-3 ${stat.color}`} strokeWidth={1.5} />
-                  <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-                  <p className="text-xs text-muted mt-1">{stat.label}</p>
+                <CardContent className="p-3 sm:p-6">
+                  <stat.icon className={`w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2 sm:mb-3 ${stat.color}`} strokeWidth={1.5} />
+                  <p className={`text-lg sm:text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+                  <p className="text-xs sm:text-xs text-muted mt-1">{stat.label}</p>
                 </CardContent>
               </Card>
             </div>
