@@ -1,43 +1,52 @@
-import { sdk } from '@farcaster/miniapp-sdk'
-
-// Initialize Farcaster SDK
+// Farcaster Mini App SDK integration
+let sdk: any = null
 let isInitialized = false
 
 export async function initFarcasterSDK() {
   if (typeof window === 'undefined') {
-    throw new Error('Farcaster SDK can only be initialized in the browser')
+    console.log('Not in browser environment')
+    return false
   }
 
-  if (!isInitialized) {
-    try {
-      // Just initialize SDK, don't call ready() yet
-      isInitialized = true
-      console.log('Farcaster SDK initialized successfully')
-    } catch (error) {
-      console.error('Failed to initialize Farcaster SDK:', error)
-      throw error
-    }
+  if (isInitialized) {
+    return true
   }
 
-  return sdk
-}
-
-export function getFarcasterSDK() {
-  return sdk
+  try {
+    // Try to dynamically import the SDK
+    const { MiniAppSDK } = await import('@farcaster/miniapp-sdk')
+    sdk = new MiniAppSDK()
+    isInitialized = true
+    console.log('🔗 Farcaster SDK initialized successfully')
+    return true
+  } catch (error) {
+    console.warn('⚠️ Farcaster SDK not available:', error)
+    return false
+  }
 }
 
 export async function notifyReady() {
   try {
     if (typeof window === 'undefined') {
       console.log('Not in browser, skipping ready notification')
-      return
-    }
-
-    if (!isInitialized) {
-      await initFarcasterSDK()
+      return false
     }
     
-    // Call ready to notify Farcaster that the app is loaded
+    // Initialize SDK if not already done
+    if (!isInitialized) {
+      const initialized = await initFarcasterSDK()
+      if (!initialized) {
+        console.log('SDK not available, skipping ready notification')
+        return false
+      }
+    }
+    
+    if (!sdk || !sdk.actions) {
+      console.warn('SDK actions not available')
+      return false
+    }
+    
+    // Call ready
     console.log('📢 Calling sdk.actions.ready()...')
     await sdk.actions.ready()
     console.log('✅ Mini app ready notification sent to Farcaster successfully!')
@@ -50,13 +59,19 @@ export async function notifyReady() {
   }
 }
 
+export function getFarcasterSDK() {
+  return sdk
+}
+
 export async function setAppTitle(title: string) {
   try {
     if (!isInitialized) {
       await initFarcasterSDK()
     }
-    if ((sdk.actions as any).setTitle) {
-      await (sdk.actions as any).setTitle(title)
+    
+    if (sdk?.actions?.setTitle) {
+      await sdk.actions.setTitle(title)
+      console.log('📝 App title set:', title)
     }
   } catch (error) {
     console.warn('Failed to set app title:', error)
@@ -68,7 +83,13 @@ export async function openUrl(url: string) {
     if (!isInitialized) {
       await initFarcasterSDK()
     }
-    await sdk.actions.openUrl(url)
+    
+    if (sdk?.actions?.openUrl) {
+      await sdk.actions.openUrl(url)
+    } else {
+      // Fallback to window.open
+      window.open(url, '_blank')
+    }
   } catch (error) {
     console.warn('Failed to open URL:', error)
     // Fallback to window.open
@@ -121,11 +142,14 @@ export function getPublicUrl(): string {
 export async function getCurrentFarcasterUser() {
   try {
     if (!isInitialized) {
-      await initFarcasterSDK()
+      const initialized = await initFarcasterSDK()
+      if (!initialized) {
+        return null
+      }
     }
     
     // Try to get user context from SDK
-    if (sdk.context) {
+    if (sdk?.context) {
       const context = await sdk.context
       if (context?.user) {
         return {
@@ -152,12 +176,15 @@ export async function getCurrentFarcasterUser() {
 export async function triggerFarcasterAuth() {
   try {
     if (!isInitialized) {
-      await initFarcasterSDK()
+      const initialized = await initFarcasterSDK()
+      if (!initialized) {
+        return false
+      }
     }
     
     // Use Farcaster's built-in auth flow
-    if ((sdk.actions as any).signIn) {
-      await (sdk.actions as any).signIn()
+    if (sdk?.actions?.signIn) {
+      await sdk.actions.signIn()
       return true
     }
     

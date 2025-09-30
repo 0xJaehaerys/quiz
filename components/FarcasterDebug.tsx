@@ -1,119 +1,87 @@
 "use client"
 
 import { useEffect, useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { Button } from './ui/button'
-import { Badge } from './ui/badge'
-import { 
-  isFarcasterEnvironment, 
-  getCurrentFarcasterUser, 
-  initFarcasterSDK,
-  getFarcasterSDK 
-} from '@/lib/fc'
-import { CheckCircle, XCircle, AlertTriangle, RefreshCw, Eye, EyeOff } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { notifyReady, isFarcasterEnvironment, initFarcasterSDK, getFarcasterSDK } from '@/lib/fc'
+import { Eye, EyeOff, RefreshCw, CheckCircle, XCircle } from "lucide-react"
 
 export function FarcasterDebug() {
   const [isVisible, setIsVisible] = useState(false)
-  const [debugInfo, setDebugInfo] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [debugInfo, setDebugInfo] = useState({
+    isFarcasterEnv: false,
+    sdkAvailable: false,
+    readyStatus: 'unknown',
+    userAgent: '',
+    hostname: '',
+    context: null,
+  })
 
-  const runDiagnostics = async () => {
-    setIsLoading(true)
-    const info: any = {
-      timestamp: new Date().toISOString(),
-      environment: {},
-      sdk: {},
-      user: {},
-      config: {}
+  const updateDebugInfo = async () => {
+    const info = {
+      isFarcasterEnv: isFarcasterEnvironment(),
+      sdkAvailable: false,
+      readyStatus: 'unknown',
+      userAgent: typeof window !== 'undefined' ? navigator.userAgent : '',
+      hostname: typeof window !== 'undefined' ? window.location.hostname : '',
+      context: null,
     }
 
     try {
-      // Environment checks
-      info.environment = {
-        isFarcaster: isFarcasterEnvironment(),
-        userAgent: navigator.userAgent,
-        hostname: window.location.hostname,
-        protocol: window.location.protocol,
-        hasWindow: typeof window !== 'undefined',
-        hasFarcasterGlobal: !!(window as any).farcaster,
-        hasFcGlobal: !!(window as any).fc
-      }
+      // Try to initialize SDK
+      const initialized = await initFarcasterSDK()
+      info.sdkAvailable = initialized
 
-      // SDK checks
-      try {
-        await initFarcasterSDK()
+      if (initialized) {
         const sdk = getFarcasterSDK()
-        const context = sdk.context ? await sdk.context : null
-        info.sdk = {
-          initialized: true,
-          hasActions: !!sdk.actions,
-          hasContext: !!context,
-          contextKeys: context ? Object.keys(context) : [],
-          isInstalled: !!(context as any)?.isInstalled
-        }
-      } catch (error) {
-        info.sdk = {
-          initialized: false,
-          error: error instanceof Error ? error.message : 'Unknown error'
+        if (sdk) {
+          try {
+            // Try to get context
+            if (sdk.context) {
+              info.context = sdk.context
+            }
+          } catch (err) {
+            console.warn('Failed to get SDK context:', err)
+          }
         }
       }
-
-      // User checks
-      try {
-        const user = await getCurrentFarcasterUser()
-        info.user = {
-          found: !!user,
-          data: user ? {
-            fid: user.fid,
-            username: user.username,
-            displayName: user.displayName
-          } : null
-        }
-      } catch (error) {
-        info.user = {
-          found: false,
-          error: error instanceof Error ? error.message : 'Unknown error'
-        }
-      }
-
-      // Config checks
-      info.config = {
-        hasNeynarApiKey: !!process.env.NEYNAR_API_KEY,
-        hasNeynarAppId: !!process.env.NEXT_PUBLIC_NEYNAR_APP_ID,
-        hasPublicHost: !!process.env.NEXT_PUBLIC_PUBLIC_HOST,
-        nodeEnv: process.env.NODE_ENV
-      }
-
     } catch (error) {
-      info.error = error instanceof Error ? error.message : 'Unknown error'
+      console.warn('Debug info update failed:', error)
     }
 
     setDebugInfo(info)
-    setIsLoading(false)
+  }
+
+  const testReady = async () => {
+    try {
+      setDebugInfo(prev => ({ ...prev, readyStatus: 'testing' }))
+      const result = await notifyReady()
+      setDebugInfo(prev => ({ 
+        ...prev, 
+        readyStatus: result ? 'success' : 'failed' 
+      }))
+    } catch (error) {
+      setDebugInfo(prev => ({ ...prev, readyStatus: 'error' }))
+      console.error('Ready test failed:', error)
+    }
   }
 
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      runDiagnostics()
-    }
+    updateDebugInfo()
   }, [])
 
+  // Only show in development
   if (process.env.NODE_ENV !== 'development') {
     return null
-  }
-
-  const StatusIcon = ({ status }: { status: boolean | undefined }) => {
-    if (status === true) return <CheckCircle className="w-4 h-4 text-green-500" />
-    if (status === false) return <XCircle className="w-4 h-4 text-red-500" />
-    return <AlertTriangle className="w-4 h-4 text-yellow-500" />
   }
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
       <Button
-        onClick={() => setIsVisible(!isVisible)}
         variant="outline"
         size="sm"
+        onClick={() => setIsVisible(!isVisible)}
         className="mb-2"
       >
         {isVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -121,107 +89,81 @@ export function FarcasterDebug() {
       </Button>
 
       {isVisible && (
-        <Card className="w-96 max-h-96 overflow-y-auto">
+        <Card className="w-80 max-w-sm">
           <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm">Farcaster Debug</CardTitle>
+            <CardTitle className="text-sm flex items-center justify-between">
+              Farcaster Debug
               <Button
-                onClick={runDiagnostics}
-                disabled={isLoading}
                 variant="ghost"
                 size="sm"
+                onClick={updateDebugInfo}
+                className="h-auto p-1"
               >
-                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw className="w-3 h-3" />
               </Button>
-            </div>
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Development debugging info
+            </CardDescription>
           </CardHeader>
-          
-          <CardContent className="text-xs space-y-3">
-            {debugInfo && (
-              <>
-                {/* Environment */}
-                <div>
-                  <div className="font-semibold mb-1">Environment</div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <StatusIcon status={debugInfo.environment.isFarcaster} />
-                      <span>Farcaster Environment: {debugInfo.environment.isFarcaster ? 'Yes' : 'No'}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <StatusIcon status={debugInfo.environment.hasFarcasterGlobal} />
-                      <span>Farcaster Global: {debugInfo.environment.hasFarcasterGlobal ? 'Yes' : 'No'}</span>
-                    </div>
-                    <div className="text-muted text-xs">
-                      Host: {debugInfo.environment.hostname}
-                    </div>
-                  </div>
-                </div>
+          <CardContent className="space-y-3 text-xs">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <p className="font-medium">Environment:</p>
+                <Badge variant={debugInfo.isFarcasterEnv ? 'success' : 'default'}>
+                  {debugInfo.isFarcasterEnv ? 'Farcaster' : 'Browser'}
+                </Badge>
+              </div>
+              
+              <div className="space-y-1">
+                <p className="font-medium">SDK:</p>
+                <Badge variant={debugInfo.sdkAvailable ? 'success' : 'destructive'}>
+                  {debugInfo.sdkAvailable ? 'Available' : 'Not Available'}
+                </Badge>
+              </div>
+            </div>
 
-                {/* SDK */}
-                <div>
-                  <div className="font-semibold mb-1">SDK</div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <StatusIcon status={debugInfo.sdk.initialized} />
-                      <span>SDK Initialized: {debugInfo.sdk.initialized ? 'Yes' : 'No'}</span>
-                    </div>
-                    {debugInfo.sdk.error && (
-                      <div className="text-red-500 text-xs">Error: {debugInfo.sdk.error}</div>
-                    )}
-                    {debugInfo.sdk.hasContext && (
-                      <div className="flex items-center gap-2">
-                        <StatusIcon status={debugInfo.sdk.isInstalled} />
-                        <span>Is Installed: {debugInfo.sdk.isInstalled ? 'Yes' : 'No'}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
+            <div className="space-y-1">
+              <p className="font-medium">Ready Status:</p>
+              <div className="flex items-center gap-2">
+                <Badge variant={
+                  debugInfo.readyStatus === 'success' ? 'success' :
+                  debugInfo.readyStatus === 'failed' || debugInfo.readyStatus === 'error' ? 'destructive' :
+                  'default'
+                }>
+                  {debugInfo.readyStatus}
+                </Badge>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={testReady}
+                  disabled={debugInfo.readyStatus === 'testing'}
+                  className="h-auto py-1 px-2 text-xs"
+                >
+                  Test Ready
+                </Button>
+              </div>
+            </div>
 
-                {/* User */}
-                <div>
-                  <div className="font-semibold mb-1">User</div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <StatusIcon status={debugInfo.user.found} />
-                      <span>User Found: {debugInfo.user.found ? 'Yes' : 'No'}</span>
-                    </div>
-                    {debugInfo.user.data && (
-                      <div className="text-muted text-xs">
-                        @{debugInfo.user.data.username} (FID: {debugInfo.user.data.fid})
-                      </div>
-                    )}
-                    {debugInfo.user.error && (
-                      <div className="text-red-500 text-xs">Error: {debugInfo.user.error}</div>
-                    )}
-                  </div>
-                </div>
+            <div className="space-y-1">
+              <p className="font-medium">Hostname:</p>
+              <p className="text-muted font-mono break-all">{debugInfo.hostname}</p>
+            </div>
 
-                {/* Config */}
-                <div>
-                  <div className="font-semibold mb-1">Config</div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <StatusIcon status={debugInfo.config.hasNeynarApiKey} />
-                      <span>Neynar API Key: {debugInfo.config.hasNeynarApiKey ? 'Set' : 'Missing'}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <StatusIcon status={debugInfo.config.hasNeynarAppId} />
-                      <span>Neynar App ID: {debugInfo.config.hasNeynarAppId ? 'Set' : 'Missing'}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <StatusIcon status={debugInfo.config.hasPublicHost} />
-                      <span>Public Host: {debugInfo.config.hasPublicHost ? 'Set' : 'Missing'}</span>
-                    </div>
-                    <Badge variant="outline" className="text-xs">
-                      {debugInfo.config.nodeEnv}
-                    </Badge>
-                  </div>
-                </div>
+            <div className="space-y-1">
+              <p className="font-medium">User Agent:</p>
+              <p className="text-muted font-mono text-[10px] break-all leading-tight">
+                {debugInfo.userAgent.substring(0, 100)}...
+              </p>
+            </div>
 
-                <div className="text-xs text-muted pt-2 border-t">
-                  Updated: {new Date(debugInfo.timestamp).toLocaleTimeString()}
-                </div>
-              </>
+            {debugInfo.context && (
+              <div className="space-y-1">
+                <p className="font-medium">SDK Context:</p>
+                <pre className="text-[10px] bg-muted p-2 rounded overflow-auto max-h-20">
+                  {JSON.stringify(debugInfo.context, null, 2)}
+                </pre>
+              </div>
             )}
           </CardContent>
         </Card>

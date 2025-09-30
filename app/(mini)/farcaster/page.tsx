@@ -22,18 +22,40 @@ function FarcasterAppContent() {
       try {
         console.log('🚀 Initializing Gelora Quiz app...')
         
+        // Wait for DOM to be fully loaded
+        if (typeof window !== 'undefined') {
+          await new Promise(resolve => {
+            if (document.readyState === 'complete') {
+              resolve(true)
+            } else {
+              window.addEventListener('load', () => resolve(true))
+            }
+          })
+        }
+
+        // Small delay to ensure everything is ready
+        await new Promise(resolve => setTimeout(resolve, 100))
+        
         // Check if we're in Farcaster environment
         const isInFarcaster = isFarcasterEnvironment()
         setIsFarcasterEnv(isInFarcaster)
 
+        console.log(`🔍 Environment detected: ${isInFarcaster ? 'Farcaster' : 'Browser'}`)
+
         // Always try to notify Farcaster - it will fail gracefully if not in Farcaster
+        console.log('🔔 Attempting to notify Farcaster that app is ready...')
         const readyResult = await notifyReady()
         
-        if (readyResult && isInFarcaster) {
-          console.log('🎯 Successfully initialized in Farcaster environment')
-          await setAppTitle('Gelora Quiz')
+        if (readyResult) {
+          console.log('🎯 Successfully notified Farcaster - app is ready!')
+          
+          // Set app title if we're in Farcaster
+          if (isInFarcaster) {
+            await setAppTitle('Gelora Quiz')
+            console.log('📝 App title set in Farcaster')
+          }
         } else {
-          console.log('🌐 Running in browser environment')
+          console.log('🌐 Running in browser environment or SDK not available')
         }
         
         setIsReady(true)
@@ -44,7 +66,10 @@ function FarcasterAppContent() {
       }
     }
 
-    initializeApp()
+    // Start initialization after a small delay to ensure React has mounted
+    const timeoutId = setTimeout(initializeApp, 50)
+    
+    return () => clearTimeout(timeoutId)
   }, [])
 
   const handleContinueToQuizzes = () => {
