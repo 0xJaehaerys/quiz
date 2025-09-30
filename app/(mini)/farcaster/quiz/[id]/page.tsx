@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { NeynarProvider, useFarcasterUser } from '@/components/providers/NeynarProvider'
+import { Web3Provider } from '@/components/providers/Web3Provider'
+import { QuizCompletionNFT } from '@/components/QuizCompletionNFT'
 import { Quiz, QuizResult } from '@/types'
 import { generateShareText, getDifficultyColor } from '@/lib/utils'
 import { ArrowLeft, Loader2, AlertCircle, Trophy, Share2 } from "lucide-react"
@@ -289,9 +291,11 @@ function QuizPageContent() {
 
 export default function QuizPage() {
   return (
-    <NeynarProvider>
-      <QuizPageContent />
-    </NeynarProvider>
+    <Web3Provider>
+      <NeynarProvider>
+        <QuizPageContent />
+      </NeynarProvider>
+    </Web3Provider>
   )
 }
 

@@ -6,7 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { NeynarProvider, useFarcasterUser } from '@/components/providers/NeynarProvider'
+import { Web3Provider } from '@/components/providers/Web3Provider'
 import { FarcasterDebug } from '@/components/FarcasterDebug'
+import { UserNFTCollection } from '@/components/UserNFTCollection'
 import { notifyReady, setAppTitle, isFarcasterEnvironment } from '@/lib/fc'
 import { ExternalLink, Smartphone, AlertCircle, User, LogIn, Play, Trophy, Target, Zap } from "lucide-react"
 import Image from 'next/image'
@@ -316,6 +318,9 @@ function FarcasterAppContent() {
             </div>
           </CardContent>
         </Card>
+
+        {/* NFT Collection */}
+        <UserNFTCollection />
       </div>
     </div>
   )
@@ -323,9 +328,11 @@ function FarcasterAppContent() {
 
 export default function FarcasterMiniApp() {
   return (
-    <NeynarProvider>
-      <FarcasterAppContent />
-      <FarcasterDebug />
-    </NeynarProvider>
+    <Web3Provider>
+      <NeynarProvider>
+        <FarcasterAppContent />
+        <FarcasterDebug />
+      </NeynarProvider>
+    </Web3Provider>
   )
 }

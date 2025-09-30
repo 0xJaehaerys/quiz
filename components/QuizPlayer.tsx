@@ -9,6 +9,7 @@ import { Quiz, Question, QuizResult, Answer } from "@/types"
 import { formatTime, calculateScore, getDifficultyColor } from "@/lib/utils"
 import { Clock, CheckCircle, XCircle, RotateCcw, Share2, ArrowRight, Timer } from "lucide-react"
 import { useToast } from "@/hooks/useToast"
+import { QuizCompletionNFT } from '@/components/QuizCompletionNFT'
 
 interface QuizPlayerProps {
   quiz: Quiz
@@ -160,51 +161,24 @@ export function QuizPlayer({ quiz, onComplete, onShare }: QuizPlayerProps) {
     }
   }
 
-  // Results view
+  // Results view with NFT minting
   if (showResult && result) {
     return (
       <div className="space-y-8 animate-fade-in">
-        <Card className="border border-accent/20 bg-card">
-          <CardHeader className="text-center">
-            <div className="mx-auto w-20 h-20 rounded-full bg-accent/10 flex items-center justify-center mb-6 animate-fade-in">
-              {result.score >= 80 ? (
-                <CheckCircle className="w-10 h-10 text-accent" strokeWidth={1.5} />
-              ) : result.score >= 60 ? (
-                <CheckCircle className="w-10 h-10 text-yellow-500" strokeWidth={1.5} />
-              ) : (
-                <XCircle className="w-10 h-10 text-destructive" strokeWidth={1.5} />
-              )}
-            </div>
-            <CardTitle className="gelora-typography-h1 text-foreground mb-2">Quiz Complete!</CardTitle>
-            <CardDescription className="text-base text-muted">
-              You scored <span className="font-semibold text-accent">{result.score}%</span> on {quiz.title}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-center space-y-8">
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2 animate-fade-in-up">
-                <p className="text-3xl font-bold text-accent">{result.correctAnswers}</p>
-                <p className="text-sm text-muted">Correct Answers</p>
-              </div>
-              <div className="space-y-2 animate-fade-in-up">
-                <p className="text-3xl font-bold text-accent font-mono">{formatTime(result.timeSpent)}</p>
-                <p className="text-sm text-muted">Time Taken</p>
-              </div>
-            </div>
+        <QuizCompletionNFT 
+          quiz={quiz} 
+          result={result}
+          onClose={() => {
+            setShowResult(false)
+            setResult(null)
+            setCurrentQuestionIndex(0)
+            setAnswers([])
+            setSelectedOption(null)
+            setTimeRemaining(quiz.timeLimit || 0)
+          }}
+        />
 
-            <div className="flex gap-4">
-              <Button onClick={handleRestart} variant="outline" size="lg" className="flex-1">
-                <RotateCcw className="w-4 h-4 mr-2" strokeWidth={1.5} />
-                Restart Quiz
-              </Button>
-              <Button onClick={handleShare} variant="accent" size="lg" className="flex-1">
-                <Share2 className="w-4 h-4 mr-2" strokeWidth={1.5} />
-                Share Result
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
+        {/* Review section - kept for educational value */}
         <div className="space-y-6">
           <h3 className="gelora-typography-h1 text-foreground">Review Your Answers</h3>
           <div className="space-y-4">
