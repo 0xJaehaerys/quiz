@@ -14,15 +14,16 @@ async function main() {
   const QuizResultNFT = await ethers.getContractFactory('QuizResultNFT');
   
   const quizNFT = await QuizResultNFT.deploy();
-  await quizNFT.deployed();
+  await quizNFT.waitForDeployment();
 
-  console.log('✅ QuizResultNFT deployed to:', quizNFT.address);
+  const address = await quizNFT.getAddress();
+  console.log('✅ QuizResultNFT deployed to:', address);
 
   // Verification info
   console.log('\n📋 Deployment Summary:');
   console.log('='.repeat(50));
   console.log('Contract: QuizResultNFT');
-  console.log('Address:', quizNFT.address);
+  console.log('Address:', address);
   console.log('Network:', hre.network.name);
   console.log('Deployer:', deployer.address);
   console.log('='.repeat(50));
@@ -31,14 +32,16 @@ async function main() {
   const fs = require('fs');
   const path = require('path');
   
+  const deploymentTx = quizNFT.deploymentTransaction();
+  
   const deploymentInfo = {
     contract: 'QuizResultNFT',
-    address: quizNFT.address,
+    address: address,
     network: hre.network.name,
     deployer: deployer.address,
     deployedAt: new Date().toISOString(),
-    blockNumber: await quizNFT.deployTransaction.blockNumber,
-    transactionHash: quizNFT.deployTransaction.hash
+    blockNumber: deploymentTx?.blockNumber,
+    transactionHash: deploymentTx?.hash
   };
 
   const deploymentsDir = path.join(__dirname, '../deployments');
@@ -72,15 +75,15 @@ async function main() {
   console.log('='.repeat(50));
   console.log('1. Add this address to your environment variables:');
   if (hre.network.name === 'base') {
-    console.log(`   NEXT_PUBLIC_QUIZ_NFT_BASE_ADDRESS=${quizNFT.address}`);
+    console.log(`   NEXT_PUBLIC_QUIZ_NFT_BASE_ADDRESS=${address}`);
   } else if (hre.network.name === 'baseSepolia') {
-    console.log(`   NEXT_PUBLIC_QUIZ_NFT_SEPOLIA_ADDRESS=${quizNFT.address}`);
+    console.log(`   NEXT_PUBLIC_QUIZ_NFT_SEPOLIA_ADDRESS=${address}`);
   } else {
-    console.log(`   NEXT_PUBLIC_QUIZ_NFT_${hre.network.name.toUpperCase()}_ADDRESS=${quizNFT.address}`);
+    console.log(`   NEXT_PUBLIC_QUIZ_NFT_${hre.network.name.toUpperCase()}_ADDRESS=${address}`);
   }
   
   console.log('\n2. Verify contract on Basescan:');
-  console.log(`   npx hardhat verify --network ${hre.network.name} ${quizNFT.address}`);
+  console.log(`   npx hardhat verify --network ${hre.network.name} ${address}`);
   
   console.log('\n3. Test NFT minting:');
   console.log('   - Complete a quiz in your app');
