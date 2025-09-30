@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getQuizById, getMockLeaderboard } from '@/lib/quizzes'
-import { getLeaderboard } from '@/lib/supabase'
+import { getQuizById, getLeaderboard } from '@/lib/supabase'
 
 export async function GET(
   request: Request,
@@ -8,9 +7,14 @@ export async function GET(
 ) {
   try {
     const quizId = params.id
-    const quiz = getQuizById(quizId)
+    
+    console.log(`📋 Fetching quiz ${quizId} from database...`)
+    
+    // Get quiz data from Supabase (with fallback to mock)
+    const quiz = await getQuizById(quizId)
     
     if (!quiz) {
+      console.log(`❌ Quiz ${quizId} not found`)
       return NextResponse.json(
         { 
           success: false, 
@@ -20,21 +24,29 @@ export async function GET(
       )
     }
 
-    // Get leaderboard (either from Supabase or mock data)
+    // Get leaderboard data
+    console.log(`📊 Fetching leaderboard for quiz ${quizId}...`)
     const leaderboard = await getLeaderboard(quizId)
+    
+    console.log(`✅ Successfully fetched quiz "${quiz.title}" with ${leaderboard.length} leaderboard entries`)
     
     return NextResponse.json({
       success: true,
       quiz,
-      leaderboard
+      leaderboard,
+      meta: {
+        questions_count: quiz.questions.length,
+        leaderboard_count: leaderboard.length
+      }
     })
   } catch (error) {
-    console.error('Error fetching quiz:', error)
+    console.error(`❌ Error fetching quiz ${params.id}:`, error)
     
     return NextResponse.json(
       { 
         success: false, 
-        error: 'Failed to fetch quiz' 
+        error: 'Failed to fetch quiz',
+        details: process.env.NODE_ENV === 'development' ? error : undefined
       },
       { status: 500 }
     )
