@@ -13,11 +13,11 @@ export async function initFarcasterSDK() {
   }
 
   try {
-    // Try to dynamically import the SDK
-    const { MiniAppSDK } = await import('@farcaster/miniapp-sdk')
-    sdk = new MiniAppSDK()
+    // Import individual functions from SDK
+    sdk = await import('@farcaster/miniapp-sdk')
     isInitialized = true
-    console.log('🔗 Farcaster SDK initialized successfully')
+    console.log('🔗 Farcaster SDK imported successfully')
+    console.log('Available SDK functions:', Object.keys(sdk))
     return true
   } catch (error) {
     console.warn('⚠️ Farcaster SDK not available:', error)
@@ -41,14 +41,14 @@ export async function notifyReady() {
       }
     }
     
-    if (!sdk || !sdk.actions) {
-      console.warn('SDK actions not available')
+    if (!sdk || !sdk.Ready) {
+      console.warn('SDK Ready function not available')
       return false
     }
     
-    // Call ready
-    console.log('📢 Calling sdk.actions.ready()...')
-    await sdk.actions.ready()
+    // Call ready function directly
+    console.log('📢 Calling sdk.Ready()...')
+    await sdk.Ready()
     console.log('✅ Mini app ready notification sent to Farcaster successfully!')
     
     return true
@@ -69,10 +69,10 @@ export async function setAppTitle(title: string) {
       await initFarcasterSDK()
     }
     
-    if (sdk?.actions?.setTitle) {
-      await sdk.actions.setTitle(title)
-      console.log('📝 App title set:', title)
-    }
+    // Check if there's a setTitle function available
+    // Note: This might not exist in current SDK version
+    console.log('📝 App title requested:', title)
+    console.warn('setTitle function not available in current SDK version')
   } catch (error) {
     console.warn('Failed to set app title:', error)
   }
@@ -84,12 +84,9 @@ export async function openUrl(url: string) {
       await initFarcasterSDK()
     }
     
-    if (sdk?.actions?.openUrl) {
-      await sdk.actions.openUrl(url)
-    } else {
-      // Fallback to window.open
-      window.open(url, '_blank')
-    }
+    // For now, use fallback since SDK structure is different
+    console.log('🔗 Opening URL:', url)
+    window.open(url, '_blank')
   } catch (error) {
     console.warn('Failed to open URL:', error)
     // Fallback to window.open
@@ -149,19 +146,24 @@ export async function getCurrentFarcasterUser() {
     }
     
     // Try to get user context from SDK
-    if (sdk?.context) {
-      const context = await sdk.context
-      if (context?.user) {
-        return {
-          fid: context.user.fid,
-          username: context.user.username || '',
-          displayName: context.user.displayName || '',
-          pfpUrl: context.user.pfpUrl || '',
-          bio: (context.user as any).bio || '',
-          followerCount: (context.user as any).followerCount || 0,
-          followingCount: (context.user as any).followingCount || 0,
-          verifications: (context.user as any).verifications || []
+    if (sdk?.Context) {
+      try {
+        const context = await sdk.Context()
+        console.log('Context received:', context)
+        if (context?.user) {
+          return {
+            fid: context.user.fid,
+            username: context.user.username || '',
+            displayName: context.user.displayName || '',
+            pfpUrl: context.user.pfpUrl || '',
+            bio: (context.user as any).bio || '',
+            followerCount: (context.user as any).followerCount || 0,
+            followingCount: (context.user as any).followingCount || 0,
+            verifications: (context.user as any).verifications || []
+          }
         }
+      } catch (contextError) {
+        console.warn('Failed to get context:', contextError)
       }
     }
     
@@ -183,8 +185,8 @@ export async function triggerFarcasterAuth() {
     }
     
     // Use Farcaster's built-in auth flow
-    if (sdk?.actions?.signIn) {
-      await sdk.actions.signIn()
+    if (sdk?.SignIn) {
+      await sdk.SignIn()
       return true
     }
     
